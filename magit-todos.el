@@ -670,7 +670,8 @@ filenames to be excluded."
                       (push item items)))
                   (cl-incf line-number))))))
         (let ((magit-todos-section-heading heading))
-          (setf (buffer-local-value 'magit-todos-branch-item-cache magit-status-buffer) items)
+          (with-current-buffer magit-status-buffer
+            (setq-local magit-todos-branch-item-cache items))
           (magit-todos--insert-items magit-status-buffer items :branch-p t))))))
 
 (defun magit-todos--delete-section (condition)
@@ -1557,7 +1558,7 @@ Used for e.g. Helm and Ivy."
   "Return list of (DISPLAY . ITEM) candidates for e.g. Helm and Ivy."
   ;; MAYBE: Update the cache appropriately from here.
   (if-let* ((magit-status-buffer (magit-get-mode-buffer 'magit-status-mode))
-            (items (buffer-local-value 'magit-todos-item-cache magit-status-buffer)))
+            (items (with-current-buffer magit-status-buffer magit-todos-item-cache)))
       ;; Use cached items.
       (cl-loop for item in items
                collect (magit-todos-item-cons item))
